@@ -75,10 +75,11 @@ static void generateLadder(Lexicon& english, const string start, const string en
     Set<string> usedWords;
 
     //  populate start word into first vector of queue
-    string currentLadder = start;
+    Vector<string> initialLadder;
+    initialLadder.add(start);
 
     Vector<string> currentWordLadders;
-    findWordsDifferingByOneChar(english, currentLadder, currentWordLadders);
+    findWordsDifferingByOneChar(english, currentLadder, initialLadder);
 
     Queue<string> ladder;
     ladder.enqueue(start);
