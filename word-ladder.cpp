@@ -34,7 +34,9 @@ string getStrByAscii(int ascii) {
 
 //  Construct strings that are one char different from the target word
 //  and store them
-void findWordsDifferingByOneChar(Lexicon &english, const string &startWord,
+void findWordsDifferingByOneChar(Queue<Vector<string> > ladders,
+                                 Lexicon &english,
+                                 const string &startWord,
                                  Vector<string> &possibleWords) {
     for (int i = 0; i < startWord.size(); i++) {
         for (int ascii = 97; ascii <= 122; ascii++) {
@@ -47,54 +49,22 @@ void findWordsDifferingByOneChar(Lexicon &english, const string &startWord,
     }
 }
 
-//  Determine number of characters different between two words
-int calculateNumDiffChars(const string wordA, const string wordB) {
-    int nDiff = 0;
-    int minLen = (wordA.length() < wordB.length()) ?
-    wordA.length() : wordB.length();
-
-    for (int i = 0; i < minLen; i++) {
-        if (wordA[i] != wordB[i]) nDiff++;
-    }
-
-    int excess = (wordA.length() - wordB.length());
-    return (nDiff + abs(excess));
-}
-
-void breadthFirstSearch() {
-
-}
-
 static void generateLadder(Lexicon& english, const string start, const string end) {
     cout << "Here's where you'll search for a word ladder connecting \"" << start << "\" to \"" << end << "\"." << endl;
 
-    //  define a queue of vectors for ladders
-    Queue<Vector<string> > ladders;
-    
     //  define a set of used words
     Set<string> usedWords;
+    
+    //  define a queue of vectors to store ladders
+    Queue<Vector<string> > ladders;
 
     //  populate start word into first vector of queue
     Vector<string> initialLadder;
     initialLadder.add(start);
 
-    Vector<string> currentWordLadders;
-    findWordsDifferingByOneChar(english, currentLadder, initialLadder);
+    //  add initial ladder to queue
+    ladders.enqueue(initialLadder);
 
-    Queue<string> ladder;
-    ladder.enqueue(start);
-    while (ladder.size() > 0) {
-        string possible = ladder.dequeue();
-        if (possible == end)
-            return;
-        
-    }
-    
-    
-    // check to see if top word in queue is the end word
-    // if not, populate vector of unused words having one char differences
-
-    //
 }
 
 static const string kEnglishLanguageDatafile = "EnglishWords.dat";
@@ -142,20 +112,6 @@ int main() {
     return 0;
 }
 
-TEST_CASE( "WordLadder/calculateNumDiffChars", "" ) {
-    string word1A = "hello";
-    string word1B = "jello";
-    REQUIRE(calculateNumDiffChars(word1A, word1B) == 1);
-
-    string word2A = "mine";
-    string word2B = "dine";
-    REQUIRE_FALSE(calculateNumDiffChars(word2A, word2B) == 2);
-
-    string word3A = "hello";
-    string word3B = "helloABC";
-    REQUIRE(calculateNumDiffChars(word3A, word3B) == 3);
-}
-
 TEST_CASE( "WordLadder/getCharByAscii", "" ) {
     REQUIRE(getStrByAscii(65) == "A");
     REQUIRE(getStrByAscii(97) == "a");
@@ -164,6 +120,7 @@ TEST_CASE( "WordLadder/getCharByAscii", "" ) {
 
 TEST_CASE( "WordLadder/findWordsDifferingByOneChar", "" ) {
     string tStartWord = "hello";
+    Queue<Vector<string> > tLadders;
     Vector<string> tPossibleWords;
     Lexicon tEnglish;
     tEnglish.add("mello");
@@ -171,6 +128,9 @@ TEST_CASE( "WordLadder/findWordsDifferingByOneChar", "" ) {
     tEnglish.add("chicken");
     tEnglish.add("delo");
     tEnglish.add("helln");
-    findWordsDifferingByOneChar(tEnglish, tStartWord, tPossibleWords);
+    findWordsDifferingByOneChar(tLadders,
+                                tEnglish,
+                                tStartWord,
+                                tPossibleWords);
     REQUIRE(tPossibleWords.size() == 3);
 }
