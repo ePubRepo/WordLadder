@@ -32,23 +32,6 @@ string getStrByAscii(int ascii) {
     return string(1, W);
 }
 
-//  Construct strings that are one char different from the target word
-//  and store them
-void findWordsDifferingByOneChar(Queue<Vector<string> > ladders,
-                                 Lexicon &english,
-                                 const string &startWord,
-                                 Vector<string> &possibleWords) {
-    for (int i = 0; i < startWord.size(); i++) {
-        for (int ascii = 97; ascii <= 122; ascii++) {
-            string strReplacement = getStrByAscii(ascii);
-            string testWord = startWord;
-            string wordToTest = testWord.replace(i, 1, strReplacement);
-            if (english.contains(wordToTest))
-                possibleWords.add(wordToTest);
-        }
-    }
-}
-
 static void generateLadder(Lexicon& english, const string start, const string end) {
     cout << "Here's where you'll search for a word ladder connecting \"" << start << "\" to \"" << end << "\"." << endl;
 
@@ -68,19 +51,21 @@ static void generateLadder(Lexicon& english, const string start, const string en
 
     while (!ladders.isEmpty()) {
         Vector<string> currentLadder = ladders.dequeue();
-        string lastWord = currentLadder.get(currentLadder.size());
+        string lastWord = currentLadder.get(currentLadder.size() - 1);
 
         for (int i = 0; i < lastWord.size(); i++) {
             for (int ascii = 97; ascii <= 122; ascii++) {
                 string strReplacement = getStrByAscii(ascii);
                 string testWord = lastWord;
                 string wordToTest = testWord.replace(i, 1, strReplacement);
-                if (english.contains(wordToTest)) {
+                if (english.contains(wordToTest)
+                    && !usedWords.contains(wordToTest)) {
                     Vector<string> newLadder = currentLadder;
                     newLadder.add(wordToTest);
                     if (wordToTest == end) {
                         return newLadder;
                     } else {
+                        usedWords.add(wordToTest);
                         ladders.enqueue(newLadder);
                     }
                         
