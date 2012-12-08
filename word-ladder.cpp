@@ -32,23 +32,20 @@ string getStrByAscii(int ascii) {
     return string(1, W);
 }
 
-static void generateLadder(Lexicon& english, const string start, const string end) {
-    cout << "Here's where you'll search for a word ladder connecting \"" << start << "\" to \"" << end << "\"." << endl;
+string getLadderAsString(const Vector<string> &ladder) {
+    string str;
+    for (int i = 0; i < ladder.size(); i++) {
+        str += ladder.get(i) + " ";
+    }
+    str.replace(str.length() - 1, 1, "");
+    return str;
+}
 
-    //  define a set of used words
-    Set<string> usedWords;
-    
-    //  define a queue of vectors to store ladders
-    Queue<Vector<string> > ladders;
-
-    //  populate start word into first vector of queue
-    Vector<string> initialLadder;
-    initialLadder.add(start);
-
-    //  add initial ladder to queue
-    ladders.enqueue(initialLadder);
-    usedWords.add(start);
-
+Vector<string> createWordLadder(Lexicon& english,
+                                const string start,
+                                const string end,
+                                Queue<Vector<string> > &ladders,
+                                Set<string> &usedWords) {
     while (!ladders.isEmpty()) {
         Vector<string> currentLadder = ladders.dequeue();
         string lastWord = currentLadder.get(currentLadder.size() - 1);
@@ -68,11 +65,35 @@ static void generateLadder(Lexicon& english, const string start, const string en
                         usedWords.add(wordToTest);
                         ladders.enqueue(newLadder);
                     }
-                        
                 }
             }
         }
     }
+    return Vector<string>();
+}
+
+static void generateLadder(Lexicon& english, const string start, const string end) {
+    cout << "Here's where you'll search for a word ladder connecting \"" << start << "\" to \"" << end << "\"." << endl;
+
+    //  define a set of used words
+    Set<string> usedWords;
+    
+    //  define a queue of vectors to store ladders
+    Queue<Vector<string> > ladders;
+
+    //  populate start word into first vector of queue
+    Vector<string> initialLadder;
+    initialLadder.add(start);
+
+    //  add initial ladder to queue
+    ladders.enqueue(initialLadder);
+    usedWords.add(start);
+
+    Vector<string> finalLadder = createWordLadder(english, start, end, ladders, usedWords);
+    if (finalLadder.size() == 0)
+        cout << "No Word Ladder Existed" << endl;
+    else
+        getLadderAsString(finalLadder);
 }
 
 static const string kEnglishLanguageDatafile = "EnglishWords.dat";
@@ -126,19 +147,65 @@ TEST_CASE( "WordLadder/getCharByAscii", "" ) {
     REQUIRE(getStrByAscii(108) == "l");
 }
 
-TEST_CASE( "WordLadder/findWordsDifferingByOneChar", "" ) {
-    string tStartWord = "hello";
-    Queue<Vector<string> > tLadders;
-    Vector<string> tPossibleWords;
-    Lexicon tEnglish;
-    tEnglish.add("mello");
-    tEnglish.add("helno");
-    tEnglish.add("chicken");
-    tEnglish.add("delo");
-    tEnglish.add("helln");
-    findWordsDifferingByOneChar(tLadders,
-                                tEnglish,
-                                tStartWord,
-                                tPossibleWords);
-    REQUIRE(tPossibleWords.size() == 3);
+TEST_CASE( "WordLadder/getLadderAsString", "" ) {
+    Vector<string> ladder1;
+    ladder1.add("cat");
+    ladder1.add("hat");
+    ladder1.add("mat");
+    REQUIRE(getLadderAsString(ladder1) == "cat hat mat");
+
+    Vector<string> ladder2;
+    ladder2.add("mike");
+    ladder2.add("bike");
+    ladder2.add("bake");
+    REQUIRE(getLadderAsString(ladder2) == "mike bike bake");
+}
+
+TEST_CASE( "WordLadder/createWordLadder", "" ) {
+    Lexicon tEnglish1;
+    tEnglish1.add("cat");
+    tEnglish1.add("cut");
+    tEnglish1.add("mike");
+    tEnglish1.add("but");
+
+    string tStart1 = "cat";
+    string tEnd1 = "but";
+    Queue<Vector<string> > tLadders1;
+    Set<string> tUsedWords1;
+
+    Vector<string> tInitialLadder1;
+    tInitialLadder1.add(tStart1);
+    tLadders1.enqueue((tInitialLadder1));
+    tUsedWords1.add(tStart1);
+
+    Vector<string> tFinalLadder1 = createWordLadder(tEnglish1, tStart1,
+                                                    tEnd1, tLadders1, tUsedWords1);
+    REQUIRE(getLadderAsString(tFinalLadder1) == "cat cut but");
+
+    Lexicon tEnglish2;
+    tEnglish2.add("cat");
+    tEnglish2.add("cut");
+    tEnglish2.add("mike");
+    tEnglish2.add("but");
+    tEnglish2.add("work");
+    tEnglish2.add("fork");
+    tEnglish2.add("form");
+    tEnglish2.add("foam");
+    tEnglish2.add("flam");
+    tEnglish2.add("flay");
+    tEnglish2.add("play");
+
+    string tStart2 = "work";
+    string tEnd2 = "play";
+    Queue<Vector<string> > tLadders2;
+    Set<string> tUsedWords2;
+
+    Vector<string> tInitialLadder2;
+    tInitialLadder2.add(tStart2);
+    tLadders2.enqueue((tInitialLadder2));
+    tUsedWords2.add(tStart2);
+
+    Vector<string> tFinalLadder2 = createWordLadder(tEnglish2, tStart2,
+                                                    tEnd2, tLadders2, tUsedWords2);
+    REQUIRE(getLadderAsString(tFinalLadder2) == "work fork form foam flam flay play");
 }
