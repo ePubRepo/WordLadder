@@ -64,7 +64,30 @@ static void generateLadder(Lexicon& english, const string start, const string en
 
     //  add initial ladder to queue
     ladders.enqueue(initialLadder);
+    usedWords.add(start);
 
+    while (!ladders.isEmpty()) {
+        Vector<string> currentLadder = ladders.dequeue();
+        string lastWord = currentLadder.get(currentLadder.size());
+
+        for (int i = 0; i < lastWord.size(); i++) {
+            for (int ascii = 97; ascii <= 122; ascii++) {
+                string strReplacement = getStrByAscii(ascii);
+                string testWord = lastWord;
+                string wordToTest = testWord.replace(i, 1, strReplacement);
+                if (english.contains(wordToTest)) {
+                    Vector<string> newLadder = currentLadder;
+                    newLadder.add(wordToTest);
+                    if (wordToTest == end) {
+                        return newLadder;
+                    } else {
+                        ladders.enqueue(newLadder);
+                    }
+                        
+                }
+            }
+        }
+    }
 }
 
 static const string kEnglishLanguageDatafile = "EnglishWords.dat";
