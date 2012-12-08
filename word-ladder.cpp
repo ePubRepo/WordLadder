@@ -3,10 +3,12 @@
  * ---------------------
  * Implements a program to find word ladders connecting pairs of words.
  */
+// Copyright 2012 <EB/Stanford Library>
 
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 using namespace std;
 
 #include "console.h"
@@ -23,7 +25,8 @@ static string getWord(Lexicon& english, string prompt) {
     while (true) {
         string response = trim(toLowerCase(getLine(prompt)));
         if (response.empty() || english.contains(response)) return response;
-        cout << "Your response needs to be an English word, so please try again." << endl;
+        cout << "Your response needs to be an English word, "
+           "so please try again." << endl;
     }
 }
 
@@ -72,12 +75,12 @@ Vector<string> createWordLadder(Lexicon& english,
     return Vector<string>();
 }
 
-static void generateLadder(Lexicon& english, const string start, const string end) {
-    cout << "Here's where you'll search for a word ladder connecting \"" << start << "\" to \"" << end << "\"." << endl;
-
+static void generateLadder(Lexicon& english,
+                           const string start,
+                           const string end) {
     //  define a set of used words
     Set<string> usedWords;
-    
+
     //  define a queue of vectors to store ladders
     Queue<Vector<string> > ladders;
 
@@ -89,27 +92,31 @@ static void generateLadder(Lexicon& english, const string start, const string en
     ladders.enqueue(initialLadder);
     usedWords.add(start);
 
-    Vector<string> finalLadder = createWordLadder(english, start, end, ladders, usedWords);
+    Vector<string> finalLadder = createWordLadder(english, start, end,
+                                                  ladders, usedWords);
     if (finalLadder.size() == 0)
         cout << "No Word Ladder Existed" << endl;
     else
-        getLadderAsString(finalLadder);
+        cout << "Found Ladder: " << getLadderAsString(finalLadder) << endl;
 }
 
 static const string kEnglishLanguageDatafile = "EnglishWords.dat";
 static void playWordLadder() {
     Lexicon english(kEnglishLanguageDatafile);
     while (true) {
-        string start = getWord(english, "Please enter the source word [return to quit]: ");
+        string start =
+           getWord(english, "Please enter the source word [return to quit]: ");
         if (start.empty()) break;
-        string end = getWord(english, "Please enter the destination word [return to quit]: ");
+        string end = getWord(english, "Please enter the destination "
+                             "word [return to quit]: ");
         if (end.empty()) break;
 
         std::transform(start.begin(), start.end(), start.begin(), ::tolower);
         std::transform(end.begin(), end.end(), end.begin(), ::tolower);
 
         if (start.length() != end.length()) {
-            cout << "Two words must be same length, else no word ladder exists." << endl;
+            cout << "Two words must be same length, else no word "
+               "ladder exists." << endl;
             return;
         }
         generateLadder(english, start, end);
@@ -123,31 +130,31 @@ void runProgram() {
 }
 
 int main() {
-    // CATCH UNIT TESTS
-    // Create a default config object
+    //  CATCH UNIT TESTS
+    //  Create a default config object
     Catch::Config config;
 
-    // Configure CATCH to run all tests starting with "mytests"
-    config.addTestSpec( "WordLadder/*" );
+    //  Configure CATCH to run all tests starting with "mytests"
+    config.addTestSpec("WordLadder/*");
 
-    // Forward on to CATCH's main using our custom config.
-    // This overload doesn't take command line arguments
-    // So the config object must be fully set up
-    Catch::Main( config );
+    //  Forward on to CATCH's main using our custom config.
+    //  This overload doesn't take command line arguments
+    //  So the config object must be fully set up
+    Catch::Main(config);
 
-    // NORMAL CODE
+    //  NORMAL CODE
     runProgram();
 
     return 0;
 }
 
-TEST_CASE( "WordLadder/getCharByAscii", "" ) {
+TEST_CASE("WordLadder/getCharByAscii", "") {
     REQUIRE(getStrByAscii(65) == "A");
     REQUIRE(getStrByAscii(97) == "a");
     REQUIRE(getStrByAscii(108) == "l");
 }
 
-TEST_CASE( "WordLadder/getLadderAsString", "" ) {
+TEST_CASE("WordLadder/getLadderAsString", "") {
     Vector<string> ladder1;
     ladder1.add("cat");
     ladder1.add("hat");
@@ -161,7 +168,7 @@ TEST_CASE( "WordLadder/getLadderAsString", "" ) {
     REQUIRE(getLadderAsString(ladder2) == "mike bike bake");
 }
 
-TEST_CASE( "WordLadder/createWordLadder", "" ) {
+TEST_CASE("WordLadder/createWordLadder", "") {
     Lexicon tEnglish1;
     tEnglish1.add("cat");
     tEnglish1.add("cut");
@@ -179,7 +186,8 @@ TEST_CASE( "WordLadder/createWordLadder", "" ) {
     tUsedWords1.add(tStart1);
 
     Vector<string> tFinalLadder1 = createWordLadder(tEnglish1, tStart1,
-                                                    tEnd1, tLadders1, tUsedWords1);
+                                                    tEnd1, tLadders1,
+                                                    tUsedWords1);
     REQUIRE(getLadderAsString(tFinalLadder1) == "cat cut but");
 
     Lexicon tEnglish2;
@@ -206,6 +214,8 @@ TEST_CASE( "WordLadder/createWordLadder", "" ) {
     tUsedWords2.add(tStart2);
 
     Vector<string> tFinalLadder2 = createWordLadder(tEnglish2, tStart2,
-                                                    tEnd2, tLadders2, tUsedWords2);
-    REQUIRE(getLadderAsString(tFinalLadder2) == "work fork form foam flam flay play");
+                                                    tEnd2, tLadders2,
+                                                    tUsedWords2);
+    REQUIRE(getLadderAsString(tFinalLadder2) ==
+            "work fork form foam flam flay play");
 }
